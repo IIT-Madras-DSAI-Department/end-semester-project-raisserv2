@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score, accuracy_score, classification_report
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier, StackingClassifier
+import matplotlib.pyplot as plt
 
 try:
     from xgboost import XGBClassifier
@@ -344,76 +345,32 @@ if __name__ == "__main__":
     print("Weighted F1:", f1_score(y_val, final_preds, average='weighted'))
     print(classification_report(y_val, final_preds, digits=4))
 
-    # ---------- Optional 6) Soft ensemble: average probabilities from two stacks ----------
-    # If you want one more boost, create a second stacking with slightly different estimators/seeds and average calibrated probs.
-    def build_second_stacking(Xtr, ytr):
-        estim2 = [
-            ("rf2", RandomForestClassifier(n_estimators=300, max_depth=15, random_state=7, n_jobs=-1)),
-            ("knn2", KNeighborsClassifier(n_neighbors=4, n_jobs=-1)),
-            ("logreg2", LogisticRegression(multi_class="ovr", solver="liblinear", C=0.5, max_iter=200))
-        ]
-        meta2 = XGBClassifier(n_estimators=250, max_depth=6, learning_rate=0.05, random_state=7, objective="multi:softprob", num_class=10, use_label_encoder=False, eval_metric="mlogloss")
-        stack2 = StackingClassifier(estimators=estim2, final_estimator=meta2, cv=4, n_jobs=-1, passthrough=True, stack_method="predict_proba")
-        stack2.fit(Xtr, ytr)
-        return stack2
 
-    # build and calibrate second stack (optional)
-    stack2 = build_second_stacking(X_train_boost, y_train)
-    cal2 = CalibratedClassifierCV(stack2, method='sigmoid', cv=3)
-    cal2.fit(X_train_boost, y_train)
-    # average calibrated probs
-    avg_proba = 0.5 * calibrated.predict_proba(X_val_boost) + 0.5 * cal2.predict_proba(X_val_boost)
-    avg_preds = np.argmax(avg_proba, axis=1)
-    print("Ensembled avg accuracy:", accuracy_score(y_val, avg_preds))
-    print("Ensembled avg F1:", f1_score(y_val, avg_preds, average='weighted'))
+    # Find misclassified samples
+    mis_idx = np.where(y_val != final_preds)[0]
+    print(f"\nTotal misclassified samples: {len(mis_idx)} / {len(y_val)}")
 
-    # you can then apply the same specialist reroute on avg_proba if avg helps
-    # ---------- end patch ----------
+    # Print first 20 for inspection
+    print("\nFirst 20 misclassifications (index, true → predicted):")
+    for i in mis_idx[:20]:
+        print(f"Index {i:4d}: True={y_val[i]}, Pred={final_preds[i]}")
+
+    # Optional: visualize them
+    def show_misclassified(X, y_true, y_pred, indices, n=25):
+        plt.figure(figsize=(12, 12))
+        for i, idx in enumerate(indices[:n]):
+            img = X[idx].reshape(28, 28)
+            plt.subplot(5, 5, i+1)
+            plt.imshow(img, cmap='gray')
+            plt.title(f"T:{y_true[idx]}  P:{y_pred[idx]}")
+            plt.axis('off')
+        plt.tight_layout()
+        plt.show()
+
+    # Show a few images
+    show_misclassified(X_val, y_val, final_preds, mis_idx)
+
+
 ##############################################################################################################
-    stacking.fit(X_train_final, y_train)
-    stack_preds = stacking.predict(X_val_final)
-
-
-    print("\nStacking accuracy:", accuracy_score(y_val, stack_preds))
-    print("Stacking F1:", f1_score(y_val, stack_preds, average="weighted"))
-
-    # -------------------------------------------------------------
-    # STEP 6 — SPECIALIST (3-vs-Rest)
-    # -------------------------------------------------------------
-    print("\n--- Training Specialist 3-vs-Rest ---")
-
-    y_train_3 = (y_train == 3).astype(int)
-    specialist3 = LogisticRegression(solver="lbfgs", max_iter=200)
-    specialist3.fit(X_train_final, y_train_3)
-
-    # Apply specialist only when stacking is low-confidence
-    proba = stacking.predict_proba(X_val_final)
-    final_preds = []
-    THRESHOLD = 0.65  # tuneable threshold
-
-    print("\n--- Applying Specialist Routing ---")
-    for i in range(len(y_val)):
-        p = proba[i]
-        pred = np.argmax(p)
-
-        if pred == 3 and p[3] < THRESHOLD:
-            pred_3 = specialist3.predict(X_val_final[i].reshape(1, -1))[0]
-            if pred_3 == 1:
-                final_preds.append(3)
-            else:
-                final_preds.append(pred)
-        else:
-            final_preds.append(pred)
-
-    final_preds = np.array(final_preds)
-
-    # -------------------------------------------------------------
-    # FINAL REPORT
-    # -------------------------------------------------------------
-    print("\n--- FINAL REPORT (PCA + HOG + Specialist) ---")
-    print("Accuracy:", accuracy_score(y_val, final_preds))
-    print("Weighted F1:", f1_score(y_val, final_preds, average="weighted"))
-    print("\nClassification Report:")
-    print(classification_report(y_val, final_preds, digits=4))
-
-    print("\nTotal runtime: %.2fs" % (time.time() - start_total))
+    end_total = time.time()
+    print(f"\nTotal execution time: {end_total - start_total:.2f} seconds")
