@@ -1,4 +1,3 @@
-```markdown
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/R05VM8Rg)
 
 # IIT Madras – DA2401 Machine Learning Lab: End Semester Project  
@@ -155,4 +154,4 @@ IIT Madras (2025 – 26)
 
 Developed as part of the **DA2401 – Machine Learning Laboratory**  
 Department of Data Science and Artificial Intelligence, IIT Madras.
-```
+
