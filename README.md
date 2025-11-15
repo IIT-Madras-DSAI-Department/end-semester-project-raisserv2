@@ -34,8 +34,7 @@ IITM-DA2401-MNIST-NonNeural-Architecture
 │   ├── algorithms.py              # Custom implementations of LR, KNN, RF, Boost, Calibrator
 │   ├── features.py                # PCA, HOG, Directional, Zonal feature extraction
 │   ├── features_cache.py          # Optimized cached feature pipeline
-│   ├── main_phase1_sklearn.py     # Phase 1 baseline using scikit-learn
-│   ├── main_phase2_pure.py        # Phase 2 pure Python self-coded learners
+│   ├── main_phase1_sklearn.py     # Phase 1 baseline using scikit-learn  
 │   ├── main_phase3_opt.py         # Phase 3 optimized <5 min version
 │   ├── main_hybrid_eval.py        # Hybrid test proving compute-limited performance
 │
@@ -61,7 +60,7 @@ IITM-DA2401-MNIST-NonNeural-Architecture
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/<your-username>/IITM-DA2401-MNIST-NonNeural-Architecture.git
-   cd IITM-DA2401-MNIST-NonNeural-Architecture
+   cd <path to the cloned repo>
    ```
 
 2. **Install dependencies:**
@@ -75,7 +74,7 @@ IITM-DA2401-MNIST-NonNeural-Architecture
    - scikit-learn *(optional – Phase 1 only)*  
    - xgboost *(optional – Phase 1 only)*  
 
-3. **(Optional) Precompute features for faster training:**
+3. **Precompute features for faster training:**
    ```bash
    python src/features_cache.py --precompute
    ```
@@ -86,7 +85,7 @@ IITM-DA2401-MNIST-NonNeural-Architecture
 
 All experiments are reproducible from the command line.
 
-### A. Phase 1 – Scikit-learn Baseline
+### A. Phase 1 – Scikit-learn Baseline(OPTIONAL)
 ```bash
 python src/main_phase1_sklearn.py
 ```
@@ -94,7 +93,7 @@ python src/main_phase1_sklearn.py
 - Runtime ≈ 200 s  
 *(uses scikit-learn; for architecture prototyping only)*
 
-### B. Phase 2 – Pure Python Implementation
+### B. Phase 2 – Pure Python Implementation(OPTIONAL)
 ```bash
 python src/main_phase2_pure.py
 ```
@@ -102,7 +101,7 @@ python src/main_phase2_pure.py
 - Runtime ≈ 720 s  
 *(no external ML libraries; all models self-implemented)*
 
-### C. Phase 3 – Optimized Runtime Version
+### C. Phase 3 – Optimized Runtime Version(TO RUN)
 ```bash
 python src/main_phase3_opt.py
 ```
@@ -110,7 +109,7 @@ python src/main_phase3_opt.py
 - Weighted F1 ≈ 0.945  
 - Runtime ≈ 277 s (< 5 minutes)  
 
-### D. Hybrid Compute Verification
+### D. Hybrid Compute Verification(OPTIONAL)
 ```bash
 python src/main_hybrid_eval.py
 ```
