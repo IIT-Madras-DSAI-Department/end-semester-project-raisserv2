@@ -28,7 +28,7 @@ def load_data(train_csv, val_csv):
 
 # ------------------ Specialists ------------------
 def train_binary_spec(X, y, pos_classes, pairwise=False):
-    clf = LogisticRegressionCustom(lr=0.35, n_iter=400)
+    clf = LogisticRegressionCustom(lr=0.4, n_iter=500, reg=1e-4)
     if pairwise:
         mask = np.isin(y, pos_classes)
         Xs, ys = X[mask], y[mask]
@@ -61,20 +61,38 @@ if __name__ == "__main__":
     dir_tr, dir_va = extract_directional_features(X_train), extract_directional_features(X_val)
     zon_tr, zon_va = zonal_features(X_train), zonal_features(X_val)
 
+    # ---scale non-PCA features separately ---
+    sc_hog = StandardScalerCustom().fit(hog_tr)
+    hog_tr = sc_hog.transform(hog_tr)
+    hog_va = sc_hog.transform(hog_va)
+
+    sc_dir = StandardScalerCustom().fit(dir_tr)
+    dir_tr = sc_dir.transform(dir_tr)
+    dir_va = sc_dir.transform(dir_va)
+
+    sc_zon = StandardScalerCustom().fit(zon_tr)
+    zon_tr = sc_zon.transform(zon_tr)
+    zon_va = sc_zon.transform(zon_va)
+
+    # --- Combine everything ---
     X_train_f = np.hstack([X_train_pca, hog_tr, dir_tr, zon_tr])
     X_val_f   = np.hstack([X_val_pca,   hog_va, dir_va, zon_va])
-    scaler_f  = StandardScalerCustom()
+
+    # --- Final global normalization ---
+    scaler_f = StandardScalerCustom()
     X_train_f = scaler_f.fit_transform(X_train_f)
     X_val_f   = scaler_f.transform(X_val_f)
+
     print("Final feature shape:", X_train_f.shape)
+
 
     # ---------- Base + Meta ----------
     rf  = RandomForestFast(n_estimators=35, max_depth=10,
                            sample_ratio=0.35, n_thresholds=20, random_state=42)
     knn = KNNCustom(k=5)
-    lr  = LogisticRegressionCustom(lr=0.35, n_iter=400)
+    lr  = LogisticRegressionCustom(lr=0.4, n_iter=500, reg=1e-4)
 
-    meta = GradientBoostingFast(n_estimators=25, lr=0.25,
+    meta = GradientBoostingFast(n_estimators=30, lr=0.20,
                                 max_depth=5, subsample=0.5,
                                 n_thresholds=10, random_state=42)
 
@@ -91,7 +109,11 @@ if __name__ == "__main__":
     P_val = calibrator.transform(stack.predict_proba(X_val_f))
 
     # Temperature scaling (stability)
-    P_val = P_val ** (1/1.2)
+    # P_val = P_val ** (1/1.2)
+    temps = np.clip(1.0 + 0.5*(np.std(P_val,axis=0)), 1.0, 1.4)
+    for k in range(P_val.shape[1]):
+        P_val[:,k] = P_val[:,k] ** (1/temps[k])
+    P_val /= np.sum(P_val, axis=1, keepdims=True)
     P_val /= np.sum(P_val, axis=1, keepdims=True)
     preds = stack.classes_[np.argmax(P_val, axis=1)]
 
@@ -103,7 +125,8 @@ if __name__ == "__main__":
     s35 = train_binary_spec(X_train_f, y_train, [3,5], pairwise=True)
     s79 = train_binary_spec(X_train_f, y_train, [7,9], pairwise=True)
 
-    thresholds = {"t3":0.7,"t7":0.7,"t9":0.7,"t35":0.75,"t79":0.75}
+    # thresholds = {"t3":0.7,"t7":0.7,"t9":0.7,"t35":0.75,"t79":0.75}
+    thresholds = {"t3":0.65,"t7":0.65,"t9":0.65,"t35":0.70,"t79":0.70}
     cls_idx = {c:i for i,c in enumerate(stack.classes_)}
     final = preds.copy()
     for i,p in enumerate(preds):

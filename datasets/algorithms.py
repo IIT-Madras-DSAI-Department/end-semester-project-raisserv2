@@ -273,7 +273,8 @@ class GradientBoostingFast:
             if self.early_stop and np.mean(np.abs(G)) < 0.05:
                 break
             msize = max(2000, int(self.subsample * n))
-            idx = self._rng.choice(n, msize, replace=False)
+            # idx = self._rng.choice(n, msize, replace=False)
+            idx = np.random.choice(len(y), int(0.6*len(y)), replace=False)
             Xsub, Gsub = X[idx], G[idx]
             for k in range(K):
                 ybin = (Gsub[:, k] > 0).astype(int)
