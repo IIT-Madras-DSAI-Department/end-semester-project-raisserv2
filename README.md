@@ -1,54 +1,138 @@
-# IIT-Madras-DA2401-Machine-Learning-Lab-End-Semester-Project
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/R05VM8Rg)
 
-## 📌 Purpose of this Template
-
-This repository is the **starter** for your End Semester Project submission in GitHub Classroom. You can implement your solution and push your work in this repository. Please free to edit this README.md file as per your requirements.
-
-> **Scope (as per assignment brief):**
-> Give an introduction to your repository here: Eg. This repository contains a complete implementation for ...
+# IIT Madras – DA2401 Machine Learning Lab: End Semester Project  
+## Non-Neural Specialist Architecture for MNIST Classification  
 
 ---
 
-**Important Note:** 
-1. TAs will evaluate using the `.py` file only.
-2. All your reports, plots, visualizations, etc pertaining to your solution should be uploaded to this GitHub repository
+### Purpose
+
+This repository contains a complete end-to-end implementation of a **high-accuracy, non-neural network classifier** for the MNIST dataset.  
+It demonstrates how **carefully engineered classical ML pipelines** (PCA, HOG, Zonal, Directional features) combined with **stacked ensembles and digit specialists** can approach neural-level accuracy — all without using deep learning.
+
+The project is organized into **three progressive phases**:
+
+| Phase | Description | Core Focus |
+|:------|:-------------|:------------|
+| **Phase 1** | Scikit-learn baseline | Architecture design & experimentation |
+| **Phase 2** | Pure Python implementations | Self-coded models & logic replication |
+| **Phase 3** | Runtime optimization | < 5 min training, high F1 without parallelization |
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
-* Describe your repository structure here. Explain about overall code organization.
+```
+IITM-DA2401-MNIST-NonNeural-Architecture
+│
+├── data/                          # Raw MNIST CSVs + cached features
+│   ├── MNIST_train.csv
+│   ├── MNIST_validation.csv
+│   └── precomputed_features/
+│       ├── features_final_v1.npz  # Cached feature arrays
+│       └── meta.json              # Metadata for cached features
+│
+├── src/
+│   ├── algorithms.py              # Custom implementations of LR, KNN, RF, Boost, Calibrator
+│   ├── features.py                # PCA, HOG, Directional, Zonal feature extraction
+│   ├── features_cache.py          # Optimized cached feature pipeline 
+│   ├── main_phase3_opt.py         # Phase 3 optimized <5 min version
+│   ├── main_hybrid_eval.py        # Hybrid test proving compute-limited performance
+│   ├── build_cache.py             # Script to precompute and cache features(OPTIONAL)
+│
+├── reports/   
+│   ├── MNIST_Final_Report.pdf
+│   
+│   
+│
+├── problemstatement/
+│   ├── 20251028-EndSemesterProject.pdf
+│
+├── requirements.txt
+├── README.md
+└── LICENSE
+```
 
 ---
 
-## 📦 Installation & Dependencies
+## Installation & Dependencies
 
-* Mention all the related instructions for installation of related packages for running your code here.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/<your-username>/IITM-DA2401-MNIST-NonNeural-Architecture.git
+   cd <path to the cloned repo>
+   ```
+
+2. **Install dependencies:**
+   * If you are running on local machine, and have conda setup up, then use the following commands to create a new environment and install dependencies.
+
+   ```bash     
+      conda env create -f environment.yml
+      conda activate mllab2
+   ```
+
+   if not using conda, install the dependencies using pip:
+
+   ```bash
+      pip install -r requirements.txt
+   ```  
 
 ---
 
-## ▶️ Running the Code
+## Running the Code
 
-All experiments should be runnable from the command line **and** reproducible in the notebook.
+All experiments are reproducible from the command line.
 
-### A. Command-line (recommended for grading)
+### Phase 3 – Optimized Runtime Version(TO RUN)
+```bash
+python src/main_phase3_opt.py
+```
+- Accuracy ≈ 94.6 %
+- Weighted F1 ≈ 0.945  
+- Runtime ≈ 277 s (< 5 minutes)  
 
-* Mention the instructions to run you .py files.
-  
+### Hybrid Compute Verification(OPTIONAL)
+```bash
+python src/main_hybrid_eval.py
+```
+- Confirms architecture is compute-limited, not design-limited  
+- Accuracy ≈ 97.4 %, Runtime ≈ 200 s
+
 ---
 
-## You can further add your own sections/titles along with corresponding contents here:
+## Results Summary
+
+| Phase | Implementation | Accuracy | Weighted F1 | Runtime (s) |
+|:------|:----------------|:----------|:-------------|:-------------|
+| 1 | Scikit-learn     | 97.5 % | 0.976 | 200 |
+| 2 | Raw Python       | 94.8 % | 0.948 | 720 |
+| 3 | Optimized Python | 94.6 % | 0.945 | 277 |
+| Hybrid | Cached features + sklearn models | **97.4 %** | **0.974** | **205** |
+
+>The Hybrid proves that every extra percent of accuracy beyond 94.5 % was compute-bound, not architecture-bound.
 
 ---
 
-## 🧾 Authors
+## Authors
 
-**<Name, Roll No.>**, IIT Madras (2025–26)
+**Khaja Mohammed**  
+Department of Data Science & Artificial Intelligence  
+IIT Madras (2025 – 26)
 
+---
 
-## Best Practices:
-* Keep commits with meaningful messages.
-* Please do not write all code on your local machine and push everything to GitHub on the last day. The commits in GitHub should reflect how the code has evolved during the course of the assignment.
-* Collaborations and discussions with other students is strictly prohibited.
-* Code should be modularized and well-commented.
+## Best Practices
+
+- Codebase modularized and reproducible across phases  
+- Preprocessing isolated in `features.py` and `features_cache.py` and `build_cache.py`
+- No pre-trained weights or cached model parameters used  
+- Only precomputed *feature transforms* cached for efficiency  
+- Final model guaranteed < 5 min training time on 10 000-sample MNIST subset  
+
+---
+
+## Acknowledgements
+
+Developed as part of the **DA2401 – Machine Learning Laboratory**  
+Department of Data Science and Artificial Intelligence, IIT Madras.
 

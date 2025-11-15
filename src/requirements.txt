@@ -1,0 +1,26 @@
+# ==============================================================
+# IIT Madras - DA2401 Machine Learning Lab (End-Semester Project)
+# Non-Neural Specialist Architecture for MNIST Classification
+# ==============================================================
+# This requirements.txt contains dependencies for all three phases:
+#  - Core dependencies: Required for Phases 2 and 3 (pure + optimized)
+#  - Optional dependencies: Used only in Phase 1 (scikit-learn, xgboost)
+# ==============================================================
+
+# ---------- CORE DEPENDENCIES ----------
+numpy>=1.23.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+
+# ---------- OPTIONAL (Phase 1 only) ----------
+# These are needed only if you want to reproduce Phase 1 experiments.
+# The final submission (Phase 3) does not depend on them.
+scikit-learn>=1.4.0
+xgboost>=2.0.0
+
+# ---------- DEVELOPMENT / REPORTING (Optional) ----------
+# For Jupyter-based feature analysis and LaTeX report generation.
+jupyter>=1.0.0
+notebook>=7.0.0
+pandas>=2.0.0
+seaborn>=0.13.0
