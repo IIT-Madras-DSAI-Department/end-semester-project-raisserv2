@@ -25,28 +25,28 @@ The project is organized into **three progressive phases**:
 ```
 IITM-DA2401-MNIST-NonNeural-Architecture
 │
-├── data/                         # Raw MNIST CSVs + cached features
+├── data/                          # Raw MNIST CSVs + cached features
 │   ├── MNIST_train.csv
 │   ├── MNIST_validation.csv
 │   └── precomputed_features/
+│       ├── features_final_v1.npz  # Cached feature arrays
+│       └── meta.json              # Metadata for cached features
 │
 ├── src/
 │   ├── algorithms.py              # Custom implementations of LR, KNN, RF, Boost, Calibrator
 │   ├── features.py                # PCA, HOG, Directional, Zonal feature extraction
-│   ├── features_cache.py          # Optimized cached feature pipeline
-│   ├── main_phase1_sklearn.py     # Phase 1 baseline using scikit-learn  
+│   ├── features_cache.py          # Optimized cached feature pipeline 
 │   ├── main_phase3_opt.py         # Phase 3 optimized <5 min version
 │   ├── main_hybrid_eval.py        # Hybrid test proving compute-limited performance
+│   ├── build_cache.py             # Script to precompute and cache features(OPTIONAL)
 │
-├── reports/
-│   ├── MNIST_Final_Report.tex     # Complete formatted report
+├── reports/   
 │   ├── MNIST_Final_Report.pdf
-│   ├── performance_plots.png
-│   └── runtime_accuracy_chart.png
+│   
+│   
 │
-├── notebooks/
-│   ├── Feature_Inspection.ipynb
-│   └── Misclassification_Analysis.ipynb
+├── problemstatement/
+│   ├── 20251028-EndSemesterProject.pdf
 │
 ├── requirements.txt
 ├── README.md
@@ -64,20 +64,18 @@ IITM-DA2401-MNIST-NonNeural-Architecture
    ```
 
 2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   **Required packages:**
-   - numpy  
-   - scipy  
-   - matplotlib  
-   - scikit-learn *(optional – Phase 1 only)*  
-   - xgboost *(optional – Phase 1 only)*  
+   * If you are running on local machine, and have conda setup up, then use the following commands to create a new environment and install dependencies.
 
-3. **Precompute features for faster training:**
-   ```bash
-   python src/features_cache.py --precompute
+   ```bash     
+      conda env create -f environment.yml
+      conda activate mllab2
    ```
+
+   if not using conda, install the dependencies using pip:
+
+   ```bash
+      pip install -r requirements.txt
+   ```  
 
 ---
 
@@ -85,23 +83,7 @@ IITM-DA2401-MNIST-NonNeural-Architecture
 
 All experiments are reproducible from the command line.
 
-### A. Phase 1 – Scikit-learn Baseline(OPTIONAL)
-```bash
-python src/main_phase1_sklearn.py
-```
-- Accuracy ≈ 97.4 %
-- Runtime ≈ 200 s  
-*(uses scikit-learn; for architecture prototyping only)*
-
-### B. Phase 2 – Pure Python Implementation(OPTIONAL)
-```bash
-python src/main_phase2_pure.py
-```
-- Accuracy ≈ 94.8 %
-- Runtime ≈ 720 s  
-*(no external ML libraries; all models self-implemented)*
-
-### C. Phase 3 – Optimized Runtime Version(TO RUN)
+### Phase 3 – Optimized Runtime Version(TO RUN)
 ```bash
 python src/main_phase3_opt.py
 ```
@@ -109,7 +91,7 @@ python src/main_phase3_opt.py
 - Weighted F1 ≈ 0.945  
 - Runtime ≈ 277 s (< 5 minutes)  
 
-### D. Hybrid Compute Verification(OPTIONAL)
+### Hybrid Compute Verification(OPTIONAL)
 ```bash
 python src/main_hybrid_eval.py
 ```
@@ -122,12 +104,12 @@ python src/main_hybrid_eval.py
 
 | Phase | Implementation | Accuracy | Weighted F1 | Runtime (s) |
 |:------|:----------------|:----------|:-------------|:-------------|
-| 1 | Scikit-learn | 97.4 % | 0.974 | 200 |
-| 2 | Self-coded (Pure Python) | 94.8 % | 0.948 | 720 |
+| 1 | Scikit-learn     | 97.5 % | 0.976 | 200 |
+| 2 | Raw Python       | 94.8 % | 0.948 | 720 |
 | 3 | Optimized Python | 94.6 % | 0.945 | 277 |
-| Hybrid | Cached features + sklearn models | **97.4 %** | **0.974** | **200** |
+| Hybrid | Cached features + sklearn models | **97.4 %** | **0.974** | **205** |
 
-> Every extra percent of accuracy beyond 94.5 % was compute-bound, not architecture-bound.
+>The Hybrid proves that every extra percent of accuracy beyond 94.5 % was compute-bound, not architecture-bound.
 
 ---
 
@@ -142,7 +124,7 @@ IIT Madras (2025 – 26)
 ## Best Practices
 
 - Codebase modularized and reproducible across phases  
-- Preprocessing isolated in `features.py` and `features_cache.py`  
+- Preprocessing isolated in `features.py` and `features_cache.py` and `build_cache.py`
 - No pre-trained weights or cached model parameters used  
 - Only precomputed *feature transforms* cached for efficiency  
 - Final model guaranteed < 5 min training time on 10 000-sample MNIST subset  

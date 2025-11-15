@@ -10,9 +10,11 @@ from algorithms import (
 )
 
 # ==== paths ====
-CACHE_DIR = "cache"
+CACHE_DIR = os.path.join("data", "precomputed_features")
 NPZ_PATH  = os.path.join(CACHE_DIR, "features_final_v1.npz")
 META_PATH = os.path.join(CACHE_DIR, "meta.json")
+
+
 
 def load_cached_arrays():
     assert os.path.exists(NPZ_PATH), "Cache not found. Run: python build_cache.py first."
@@ -46,7 +48,7 @@ if __name__ == "__main__":
 
     # ---- instantiate base learners ----
     rf = RandomForestFast(
-        n_estimators=35, max_depth=10, sample_ratio=0.35,
+        n_estimators=25, max_depth=8, sample_ratio=0.35,
         n_thresholds=20, random_state=42
     )
     knn = KNNCustom(k=5)   # cosine or Euclidean
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     stack = StackingCV(
         base_learners=[("rf", rf), ("knn", knn), ("lr", lr)],
         meta_learner=meta,
-        cv=3, passthrough=True, random_state=42
+        cv=2, passthrough=True, random_state=42
     )
     stack.fit(X_train, y_train)
 

@@ -77,7 +77,9 @@ def zonal_features(X, grid=(4,4)):
 # Main pipeline
 # -------------------------------------------------------------------
 if __name__ == "__main__":
-    TRAIN, VAL = "MNIST_train.csv", "MNIST_validation.csv"
+    TRAIN = os.path.join("data", "MNIST_train.csv")
+    VAL = os.path.join("data", "MNIST_validation.csv")
+
     t0_total = time.time()
     X_train, y_train, X_val, y_val = load_data(TRAIN, VAL)
 
